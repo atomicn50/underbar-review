@@ -117,12 +117,15 @@
 
   // Return the results of applying an iterator to each element.
   _.map = function(collection, iterator) {
-    // var results = [];
+    var results = [];
 
-    // _.each(collection, function(element, index, collection) {
-    //   results.push(iterator(element, index, collection))
-    // })
+    _.each(collection, function(element, index, collection) {
+      results.push(iterator(element, index, collection))
+    });
+    
+    return results;
   };
+
 
   /*
    * TIP: map is really handy when you want to transform an array of
@@ -163,6 +166,24 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    // var flag =  arguments.length === 3;
+    
+    
+
+    // _.each(collection, function(element, index, collection) {
+    //   accumulator = iterator(element, index, collection);
+    // });
+
+    // return accumulator;
+    //if accumulator given, do something
+    //set flag to false
+      //else accumulator = iterator(collection)
+    //return accumulator
+    _.each(collection, function(element, index, collection) {
+      accumulator = iterator(accumulator, element)
+    });
+
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
