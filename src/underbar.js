@@ -166,19 +166,15 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
-    // var flag =  arguments.length === 3;
-    
-    
 
-    // _.each(collection, function(element, index, collection) {
-    //   accumulator = iterator(element, index, collection);
-    // });
-
-    // return accumulator;
-    //if accumulator given, do something
-    //set flag to false
-      //else accumulator = iterator(collection)
-    //return accumulator
+    if (accumulator === undefined) {
+      accumulator = collection[0];
+      for (var i = 1; i < collection.length; i++) {
+        accumulator = iterator(accumulator, collection[i]);
+      }
+      return accumulator;
+    }
+    
     _.each(collection, function(element, index, collection) {
       accumulator = iterator(accumulator, element)
     });
@@ -202,12 +198,30 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    var iterator = iterator || _.identity;
+    
+    return _.reduce(collection, function(memo, elem) {
+      if (!iterator(elem)) {
+        memo = false;
+      }
+      return memo;
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    var result = false;
+    var iterator = iterator || _.identity;
+
+    _.each(collection, function(elem) {
+      if (iterator(elem)) {
+        result = true;
+        return result;
+      }
+    });
+    return result;
   };
 
 
@@ -222,19 +236,35 @@
   // object(s).
   //
   // Example:
-  //   var obj1 = {key1: "something"};
-  //   _.extend(obj1, {
-  //     key2: "something new",
-  //     key3: "something else new"
-  //   }, {
-  //     bla: "even more stuff"
-  //   }); // obj1 now contains key1, key2, key3 and bla
+    // var obj1 = {key1: "something"};
+    // _.extend(obj1, {
+    //   key2: "something new",
+    //   key3: "something else new"
+    // }, {
+    //   bla: "even more stuff"
+    // }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var args = [].slice.call(arguments, 1);
+    for (var i = 0; i < args.length; i++) {
+      for (var key in args[i]) {
+        obj[key] = args[i][key];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var args = [].slice.call(arguments, 1);
+    for (var i = 0; i < args.length; i++) {
+      for (var key in args[i]) {
+        if (!obj.hasOwnProperty(key)) {
+          obj[key] = args[i][key];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -278,6 +308,17 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var memo = {};
+
+    return function() {
+      var key = JSON.stringify(arguments);
+      if (memo.hasOwnProperty(key)) {
+        return memo[key];
+      } else {
+        memo[key] = func.apply(this, arguments); 
+        return memo[key];
+      }
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -287,6 +328,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = [].slice.call(arguments, 2);
+
+    return setTimeout(function() {
+      return func.apply(this, args)
+    }, wait);
   };
 
 
@@ -301,6 +347,18 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var shuffled = [];
+    var copy = array.slice();
+    var randNum = function(max) {
+      return Math.floor(Math.random() * Math.floor(max))
+    }
+
+    while (copy.length > 0) {
+      var random = randNum(copy.length);
+      shuffled.push(copy[random]);
+      copy.splice(random, 1);
+    }
+    return shuffled;
   };
 
 
